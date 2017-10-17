@@ -62,8 +62,8 @@ class ConditionalInstanceNormalization(InstanceNormalization):
         self.input_spec = [InputSpec(shape=input_shape)]
         shape = (self.nb_classes, 1, 1, input_shape[-1])
 
-        self.gamma = self.gamma_init(shape, name='{}_gamma'.format(self.name))
-        self.beta = self.beta_init(shape, name='{}_beta'.format(self.name))
+        self.gamma = K.variable(self.gamma_init(shape), name='{}_gamma'.format(self.name))
+        self.beta = K.variable(self.beta_init(shape), name='{}_beta'.format(self.name))
         self.trainable_weights = [self.gamma, self.beta]
 
         self.built = True
