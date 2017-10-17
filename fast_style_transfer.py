@@ -17,7 +17,9 @@ import yaml
 import time
 from scipy.misc import imsave
 
+
 from model import pastiche_model
+from keras.utils import plot_model
 
 if __name__ == '__main__':
 
@@ -48,9 +50,14 @@ if __name__ == '__main__':
     pastiche_net = pastiche_model(None, width_factor=model_args.width_factor,
                                   nb_classes=model_args.nb_classes,
                                   targets=class_targets)
-    with h5py.File(checkpoint_path + '.h5', 'r') as f:
-        pastiche_net.load_weights_from_hdf5_group(f['model_weights'])
+    pastiche_net.load_weights(checkpoint_path + '.h5')
 
+    #plot_model(pastiche_net, to_file='model.png') 
+
+    with tf.Session() as sess:
+        init = tf.initialize_all_variables() 
+        sess.run(init) 
+ 
     inputs = [pastiche_net.input, class_targets, K.learning_phase()]
 
     transfer_style = K.function(inputs, [pastiche_net.output])

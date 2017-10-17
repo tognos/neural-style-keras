@@ -9,12 +9,12 @@ from keras.layers import (Convolution2D, Activation, UpSampling2D,
                           merge, Lambda)
 from layers import (ReflectionPadding2D, InstanceNormalization,
                     ConditionalInstanceNormalization)
-from keras.initializations import normal
+#from keras.initializations import normal
+from keras import backend as K
 
 # Initialize weights with normal distribution with std 0.01
 def weights_init(shape, name=None, dim_ordering=None):
-    return normal(shape, scale=0.01, name=name)
-
+    return K.random_normal_variable(shape, 0.0, 0.01, name)
 
 def conv(x, n_filters, kernel_size=3, stride=1, relu=True, nb_classes=1, targets=None):
     '''

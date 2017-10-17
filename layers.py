@@ -4,15 +4,16 @@ Custom Keras layers used on the pastiche model.
 
 import tensorflow as tf
 import keras
-from keras import initializations
+from keras import initializers
 from keras.layers import ZeroPadding2D, Layer, InputSpec
+from keras import backend as K
 
 # Extending the ZeroPadding2D layer to do reflection padding instead.
 class ReflectionPadding2D(ZeroPadding2D):
     def call(self, x, mask=None):
         pattern = [[0, 0],
-                   [self.top_pad, self.bottom_pad],
-                   [self.left_pad, self.right_pad],
+                   [self.padding[0][0], self.padding[0][1]],
+                   [self.padding[1][0], self.padding[1][1]],
                    [0, 0]]
         return tf.pad(x, pattern, mode='REFLECT')
 
@@ -20,8 +21,8 @@ class ReflectionPadding2D(ZeroPadding2D):
 class InstanceNormalization(Layer):
     def __init__(self, epsilon=1e-5, weights=None,
                  beta_init='zero', gamma_init='one', **kwargs):
-        self.beta_init = initializations.get(beta_init)
-        self.gamma_init = initializations.get(gamma_init)
+        self.beta_init = initializers.get(beta_init)
+        self.gamma_init = initializers.get(gamma_init)
         self.epsilon = epsilon
         super(InstanceNormalization, self).__init__(**kwargs)
 
@@ -29,9 +30,8 @@ class InstanceNormalization(Layer):
         # This currently only works for 4D inputs: assuming (B, H, W, C)
         self.input_spec = [InputSpec(shape=input_shape)]
         shape = (1, 1, 1, input_shape[-1])
-
-        self.gamma = self.gamma_init(shape, name='{}_gamma'.format(self.name))
-        self.beta = self.beta_init(shape, name='{}_beta'.format(self.name))
+        self.gamma = K.variable(self.gamma_init(shape), name='{}_gamma'.format(self.name))
+        self.beta = K.variable(self.beta_init(shape), name='{}_beta'.format(self.name))
         self.trainable_weights = [self.gamma, self.beta]
 
         self.built = True
