@@ -114,11 +114,14 @@ if __name__ == '__main__':
              [K.learning_phase()]
 
     # Get trainable params
-    params = pastiche_net.trainable_weights
-    constraints = pastiche_net.constraints
+    params = [ts for ts in pastiche_net.trainable_weights if ts.op.type != 'Const']
+
+
+    #constraints = pastiche_net.constraints
 
     opt = Adam(lr=args.lr)
-    updates = opt.get_updates(params, constraints, total_loss)
+    #updates = opt.get_updates(params, constraints, total_loss)
+    updates = opt.get_updates(total_loss, params)
 
     # List of outputs
     outputs = [total_loss] + weighted_content_losses + weighted_style_losses + [weighted_tv_loss]

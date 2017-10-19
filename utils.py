@@ -9,6 +9,7 @@ import yaml
 from PIL import Image
 from keras.applications import vgg16
 from keras import backend as K
+from keras.engine import topology
 
 def config_gpu(gpu, allow_growth):
     # Choosing gpu
@@ -26,8 +27,11 @@ def config_gpu(gpu, allow_growth):
 
 def save_checkpoint(checkpoint_path, pastiche_net, log):
     with h5py.File(checkpoint_path + '.h5', 'w') as f:
-        g  = f.create_group('model_weights')
-        pastiche_net.save_weights_to_hdf5_group(g)
+        #g  = f.create_group('model_weights')
+        
+        #pastiche_net.save_weights_to_hdf5_group(f, pastiche_net)
+        weights = pastiche_net.get_weights()
+        topology.save_weights_to_hdf5_group(f, pastiche_net.layers)
         g =  f.create_group('log')
         g.create_dataset('total_loss', data=np.array(log['total_loss']))
         g.create_dataset('tv_loss', data=np.array(log['tv_loss']))
