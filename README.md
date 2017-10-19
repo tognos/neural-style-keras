@@ -5,7 +5,7 @@ Implementation of neural style transfer methods using Keras and Tensorflow. This
 To use a pre-tained net simply use the script
 
 ```bash
-python fast_stye_transfer.py --checkpoint_path data/models/candy.h5 --input_path content_imgs\
+python fast_style_transfer.py --checkpoint_path data/models/candy.h5 --input_path content_imgs\
 --output_path pastiche_output --use_style_name
 ```
 
