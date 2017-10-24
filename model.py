@@ -6,15 +6,19 @@ import keras
 from keras.models import Model
 from keras.layers import (Convolution2D, Activation, UpSampling2D,
                           ZeroPadding2D, Input, BatchNormalization,
-                          merge, Lambda)
+                          Add, Lambda)
+from keras.initializers import RandomNormal
 from layers import (ReflectionPadding2D, InstanceNormalization,
                     ConditionalInstanceNormalization)
 #from keras.initializations import normal
 from keras import backend as K
 
 # Initialize weights with normal distribution with std 0.01
-def weights_init(shape, name=None, dim_ordering=None):
-    return K.random_normal_variable(shape, 0.0, 0.01, name)
+def weights_init():
+  pass
+
+#def weights_init(shape, name=None, dim_ordering=None):
+#    return K.random_normal_variable(shape, 0.0, 0.01, name)
 
 def conv(x, n_filters, kernel_size=3, stride=1, relu=True, nb_classes=1, targets=None):
     '''
@@ -22,10 +26,10 @@ def conv(x, n_filters, kernel_size=3, stride=1, relu=True, nb_classes=1, targets
     '''
     if not kernel_size % 2:
         raise ValueError('Expected odd kernel size.')
-    pad = (kernel_size - 1) / 2
+    pad = int((kernel_size - 1) / 2)
     o = ReflectionPadding2D(padding=(pad, pad))(x)
-    o = Convolution2D(n_filters, kernel_size, kernel_size,
-                      subsample=(stride, stride), init=weights_init)(o)
+    o = Convolution2D(n_filters, (kernel_size, kernel_size),
+                      strides=(stride, stride), kernel_initializer=RandomNormal(0.0,0.01))(o)
     # o = BatchNormalization()(o)
     if nb_classes > 1:
         o = ConditionalInstanceNormalization(targets, nb_classes)(o)
@@ -44,7 +48,7 @@ def residual_block(x, n_filters, nb_classes=1, targets=None):
     # Linear activation on second conv
     o = conv(o, n_filters, relu=False, nb_classes=nb_classes, targets=targets)
     # Shortcut connection
-    o = merge([o, x], mode='sum')
+    o = Add()([o, x])
     return o
 
 
@@ -73,5 +77,5 @@ def pastiche_model(img_size, width_factor=2, nb_classes=1, targets=None):
     o = conv(o, 3, kernel_size=9, relu=False, nb_classes=nb_classes, targets=targets)
     o = Activation('tanh')(o)
     o = Lambda(lambda x: 150*x, name='scaling')(o)
-    pastiche_net = Model(input=x, output=o)
+    pastiche_net = Model(inputs=x, outputs=o)
     return pastiche_net

@@ -52,7 +52,8 @@ if __name__ == '__main__':
                                   targets=class_targets)
     pastiche_net.load_weights(checkpoint_path + '.h5')
 
-    #plot_model(pastiche_net, to_file='model.png') 
+    plot_model(pastiche_net, to_file='model.png') 
+    pastiche_net.save("pastiche_{}.h5".format(style_names[0].decode()))
 
     with tf.Session() as sess:
         init = tf.initialize_all_variables() 
@@ -65,7 +66,7 @@ if __name__ == '__main__':
     num_batches = int(np.ceil(model_args.nb_classes / float(args.batch_size)))
 
     for img_name in os.listdir(args.input_path):
-        print('Processing %s' %img_name)
+        print('Processing '+img_name)
         img = preprocess_image_scale(os.path.join(args.input_path, img_name),
                                      img_size=args.img_size)
         imgs = np.repeat(img, model_args.nb_classes, axis=0)
@@ -81,11 +82,12 @@ if __name__ == '__main__':
                 names = style_names[idx:idx + args.batch_size]
             else:
                 names = indices
-            print('  Processing styles %s' %str(names))
+            print('  Processing styles ' + str(names))
 
             out = transfer_style([batch, indices, 0.])[0]
 
             for name, im in zip(names, out):
-                print('Saving file %s_style_%s.png' %(out_name, str(name)))
-                imsave(os.path.join(args.output_path, '%s_style_%s.png' %(out_name, str(name))),
-                       deprocess_image(im[None, :, :, :].copy()))
+                name_str = name.decode()
+                out_file_path = os.path.join(args.output_path, '{}_style_{}.png'.format(out_name, name_str))
+                print('Saving file {}'.format(out_file_path))
+                imsave(out_file_path, deprocess_image(im[None, :, :, :].copy()))
