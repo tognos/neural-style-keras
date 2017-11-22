@@ -20,10 +20,12 @@ class ReflectionPadding2D(ZeroPadding2D):
 
 class InstanceNormalization(Layer):
     def __init__(self, epsilon=1e-5, weights=None,
-                 beta_init='zero', gamma_init='one', **kwargs):
+                 beta_init='zero', gamma_init='one', center=True, scale=True, **kwargs):
         self.beta_init = initializers.get(beta_init)
         self.gamma_init = initializers.get(gamma_init)
         self.epsilon = epsilon
+        self.scale = scale
+        self.center = center
         super(InstanceNormalization, self).__init__(**kwargs)
 
     def build(self, input_shape):
@@ -46,7 +48,7 @@ class InstanceNormalization(Layer):
         return x_normed
 
     def get_config(self):
-        config = {"epsilon": self.epsilon}
+        config = {"epsilon": self.epsilon, "scale": self.scale, "center": self.center}
         base_config = super(InstanceNormalization, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
 

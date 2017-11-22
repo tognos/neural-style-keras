@@ -19,7 +19,7 @@ from scipy.misc import imsave
 
 
 from model import pastiche_model
-from keras.utils import plot_model
+#from keras.utils import plot_model
 
 if __name__ == '__main__':
 
@@ -52,7 +52,7 @@ if __name__ == '__main__':
                                   targets=class_targets)
     pastiche_net.load_weights(checkpoint_path + '.h5')
 
-    plot_model(pastiche_net, to_file='model.png') 
+    #plot_model(pastiche_net, to_file='model.png') 
     pastiche_net.save("pastiche_{}.h5".format(style_names[0].decode()))
 
     with tf.Session() as sess:
